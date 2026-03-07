@@ -269,102 +269,51 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcXZ0eXBsbmlvaXB1cG52YXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzE5MzgsImV4cCI6MjA4ODQwNzkzOH0.fPy4XdueQhgSIVeBscraQUAyt0STdGYPXCLEvgpSHS4';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // 1. A escala cromática completa (12 semitões)
         const notasEscala = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        let todasMusicas = [];
-        let musicaAtiva = null;
-        let deslocamento = 0;
 
-        // --- AUTH ---
-        async function entrar() {
-            const { error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('email').value,
-                password: document.getElementById('senha').value
-            });
-            if (error) alert("Erro: " + error.message); else verificarSessao();
-        }
+        function transpor(acordeOriginal, semitones) {
+            // Regex para capturar a Nota Base (ex: C# ou Ab ou G)
+            // Ela busca uma letra de A-G, seguida opcionalmente de # ou b
+            const modeloNota = /^([A-G][#b]?)(.*)/;
+            const match = acordeOriginal.match(modeloNota);
 
-        async function cadastrar() {
-            const { error } = await _supabase.auth.signUp({
-                email: document.getElementById('email').value,
-                password: document.getElementById('senha').value
-            });
-            if (error) alert(error.message); else alert("Registo feito! Tente entrar.");
-        }
+            if (!match) return acordeOriginal;
 
-        async function sair() { await _supabase.auth.signOut(); verificarSessao(); }
+            let notaBase = match[1];     // Ex: "C#"
+            let complemento = match[2];  // Ex: "m7(9)" ou "sus4"
 
-        async function verificarSessao() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                document.getElementById('tela-auth').style.display = 'none';
-                baixarDados();
-            } else {
-                document.getElementById('tela-auth').style.display = 'flex';
-            }
-        }
+            // Padronização de Bemóis para Sustenidos (para busca na lista)
+            const dicionarioBemoes = { "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#" };
+            if (dicionarioBemoes[notaBase]) notaBase = dicionarioBemoes[notaBase];
 
-        // --- DADOS ---
-        async function baixarDados() {
-            const { data } = await _supabase.from('musicas').select('*').order('titulo', { ascending: true });
-            todasMusicas = data || [];
-            renderizar(todasMusicas);
-        }
+            // Encontra a posição atual na escala
+            let indiceAtual = notasEscala.indexOf(notaBase);
+            if (indiceAtual === -1) return acordeOriginal;
 
-        async function salvarCifra() {
-            const { error } = await _supabase.from('musicas').insert([{
-                titulo: document.getElementById('adm-titulo').value,
-                categoria: document.getElementById('adm-categoria').value,
-                conteudo: document.getElementById('adm-conteudo').value
-            }]);
-            if (error) alert(error.message); else { fecharAdmin(); baixarDados(); }
-        }
+            // Calcula o novo índice (roda a escala de 12 notas)
+            let novoIndice = (indiceAtual + semitones) % 12;
+            if (novoIndice < 0) novoIndice += 12;
 
-        async function apagarMusica(id, event) {
-            event.stopPropagation();
-            if (confirm("Desejas apagar esta música permanentemente?")) {
-                const { error } = await _supabase.from('musicas').delete().eq('id', id);
-                if (error) alert("Erro ao apagar"); else baixarDados();
-            }
-        }
+            const novaNotaBase = notasEscala[novoIndice];
 
-        // --- LOGICA UI ---
-        function renderizar(lista) {
-            const container = document.getElementById('lista-musicas');
-            container.innerHTML = "";
-            lista.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'card-musica';
-                div.innerHTML = `
-                <div class="info-musica"><b>${m.titulo}</b><br><small>${m.categoria}</small></div>
-                <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>
-            `;
-                div.querySelector('.info-musica').onclick = () => { musicaAtiva = m; deslocamento = 0; abrirCifra(); };
-                container.appendChild(div);
-            });
-        }
-
-        function pesquisar(termo) {
-            const f = todasMusicas.filter(m => m.titulo.toLowerCase().includes(termo.toLowerCase()));
-            renderizar(f);
-        }
-
-        function filtrar(cat) {
-            const f = cat === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === cat);
-            renderizar(f);
-        }
-
-        function abrirCifra() {
-            document.getElementById('area-cifra').style.display = 'flex';
-            document.getElementById('titulo-view').innerText = musicaAtiva.titulo;
-            atualizarCifra();
+            // Retorna a nova nota com o complemento original (mantendo o m, 7, etc)
+            return `<span class="nota-musical">${novaNotaBase}${complemento}</span>`;
         }
 
         function atualizarCifra() {
-            const regex = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add)?(?:\d+)?)\b/g;
-            document.getElementById('visor-cifra').innerHTML = musicaAtiva.conteudo.replace(regex, n => transpor(n, deslocamento));
-            document.getElementById('display-tom').innerText = deslocamento === 0 ? "Tom Original" : `Tom: ${deslocamento > 0 ? '+' : ''}${deslocamento}`;
-        }
+            const visor = document.getElementById('visor-cifra');
 
+            // Esta Regex localiza palavras que começam com notas musicais A-G
+            // Evita capturar palavras comuns da letra da música
+            const regexAcordes = /\b[A-G][#b]?(?:m|maj|dim|aug|sus|add|M)?(?:\d+)?(?:\/[A-G][#b]?)?\b/g;
+
+            let textoFinal = musicaAtiva.conteudo.replace(regexAcordes, (acorde) => {
+                return transpor(acorde, deslocamento);
+            });
+
+            visor.innerHTML = textoFinal;
+        }
         function transpor(nota, semitons) {
             let base = nota.match(/[A-G][#b]?/)[0];
             let suf = nota.replace(base, "");
