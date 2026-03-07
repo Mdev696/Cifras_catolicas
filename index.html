@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cifras Católicas Pro</title>
+    <title>Cifras Católicas Pro - Mobile</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -29,7 +29,7 @@
             flex-direction: column;
         }
 
-        /* TELA DE LOGIN */
+        /* LOGIN */
         #tela-auth {
             position: fixed;
             inset: 0;
@@ -59,6 +59,7 @@
             border-radius: 8px;
             font-weight: bold;
             margin-bottom: 10px;
+            cursor: pointer;
         }
 
         /* HEADER E BUSCA */
@@ -67,16 +68,18 @@
             color: white;
             padding: 10px 15px;
             z-index: 50;
+            flex-shrink: 0;
         }
 
         .barra-busca {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 20px;
             border: none;
             margin-top: 10px;
             font-size: 14px;
             outline: none;
+            background: #fff;
         }
 
         /* PLAYLISTS */
@@ -87,6 +90,8 @@
             padding: 10px;
             gap: 8px;
             border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+            scrollbar-width: none;
         }
 
         .btn-cat {
@@ -96,6 +101,7 @@
             border-radius: 20px;
             white-space: nowrap;
             font-size: 13px;
+            font-weight: 500;
         }
 
         .btn-cat.active {
@@ -131,12 +137,12 @@
             color: #ccc;
             border: none;
             background: none;
-            font-size: 20px;
-            padding: 10px;
+            font-size: 24px;
+            padding: 0 10px;
             cursor: pointer;
         }
 
-        /* VISUALIZADOR */
+        /* VISUALIZADOR DE CIFRA */
         #area-cifra {
             display: none;
             position: fixed;
@@ -146,15 +152,25 @@
             flex-direction: column;
         }
 
+        .barra-topo-view {
+            padding: 15px;
+            background: #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+
         pre {
             flex: 1;
             padding: 20px;
             overflow: auto;
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Courier, monospace;
             font-size: 15px;
             line-height: 1.6;
             margin: 0;
             white-space: pre;
+            background: #fff;
         }
 
         .nota-musical {
@@ -165,7 +181,7 @@
         /* BOTÃO FLUTUANTE */
         .btn-floating {
             position: fixed;
-            bottom: 20px;
+            bottom: 25px;
             right: 20px;
             width: 60px;
             height: 60px;
@@ -185,16 +201,20 @@
             justify-content: space-around;
             color: white;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .btn-tom {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 1px solid white;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
+        /* AREA DE CADASTRO */
         #area-admin {
             display: none;
             position: fixed;
@@ -204,32 +224,41 @@
             padding: 20px;
             overflow-y: auto;
         }
+
+        textarea#adm-conteudo {
+            height: 350px;
+            font-family: monospace;
+        }
     </style>
 </head>
 
 <body>
 
     <div id="tela-auth">
-        <h2 style="text-align:center;">Cifras Católicas</h2>
-        <input type="email" id="email" class="input-auth" placeholder="E-mail">
-        <input type="password" id="senha" class="input-auth" placeholder="Senha">
+        <h2 style="text-align:center; margin-bottom: 5px;">Cifras Católicas</h2>
+        <p style="text-align:center; color: #666; margin-bottom: 30px;">Acesso Individual</p>
+        <input type="email" id="email" class="input-auth" placeholder="Seu E-mail">
+        <input type="password" id="senha" class="input-auth" placeholder="Sua Senha">
         <button class="btn-auth" onclick="entrar()">Entrar</button>
-        <button class="btn-auth" style="background:#eee; color:#333" onclick="cadastrar()">Registar</button>
+        <button class="btn-auth" style="background:#eee; color:#333" onclick="cadastrar()">Registar Nova Conta</button>
     </div>
 
     <header>
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-            <b>O Meu Portal</b>
-            <button onclick="sair()" style="background:none; border:none; color:white; font-size:12px;">Sair</button>
+            <b style="font-size: 20px;">Meu Repertório</b>
+            <button onclick="sair()"
+                style="background:none; border:none; color:white; font-size:12px; text-decoration: underline;">Sair</button>
         </div>
-        <input type="text" class="barra-busca" placeholder="Pesquisar música..." oninput="pesquisar(this.value)">
+        <input type="text" class="barra-busca" placeholder="🔍 Pesquisar pelo título..."
+            oninput="pesquisar(this.value)">
     </header>
 
-    <div class="menu-playlists">
+    <div class="menu-playlists" id="nav-categorias">
         <button class="btn-cat" onclick="filtrar('Missa')">Missa</button>
         <button class="btn-cat" onclick="filtrar('Grupo de Oração')">Grupo de Oração</button>
         <button class="btn-cat" onclick="filtrar('Terço')">Terço</button>
-        <button class="btn-cat" onclick="filtrar('A-Z')">Todas</button>
+        <button class="btn-cat" onclick="filtrar('Retiro')">Retiro</button>
+        <button class="btn-cat" onclick="filtrar('A-Z')">Todas A-Z</button>
     </div>
 
     <div id="lista-musicas"></div>
@@ -237,96 +266,193 @@
     <button class="btn-floating" onclick="abrirAdmin()">+</button>
 
     <div id="area-cifra">
-        <div style="padding:15px; background:#eee; display:flex; justify-content:space-between;">
-            <button onclick="fecharCifra()" style="border:none; background:none; font-size:16px;">← Voltar</button>
+        <div class="barra-topo-view">
+            <button onclick="fecharCifra()" style="border:none; background:none; font-size:16px; font-weight: bold;">←
+                Voltar</button>
             <b id="titulo-view"></b>
         </div>
         <pre id="visor-cifra"></pre>
         <footer-cifra>
             <button class="btn-tom" onclick="ajustarTom(-1)">- Tom</button>
-            <span id="display-tom">Tom Original</span>
+            <span id="display-tom" style="font-weight: bold;">Tom Original</span>
             <button class="btn-tom" onclick="ajustarTom(1)">+ Tom</button>
         </footer-cifra>
     </div>
 
     <div id="area-admin">
-        <h2>Nova Cifra</h2>
-        <input type="text" id="adm-titulo" class="input-auth" placeholder="Título">
+        <h2>Cadastrar Cifra</h2>
+        <input type="text" id="adm-titulo" class="input-auth" placeholder="Título da Música">
         <select id="adm-categoria" class="input-auth">
             <option value="Missa">Missa</option>
             <option value="Grupo de Oração">Grupo de Oração</option>
             <option value="Terço">Terço</option>
             <option value="Retiro">Retiro</option>
         </select>
-        <textarea id="adm-conteudo" class="input-auth" style="height:300px"
-            placeholder="Cola a cifra aqui..."></textarea>
-        <button class="btn-auth" style="background:#27ae60" onclick="salvarCifra()">SALVAR NO SUPABASE</button>
-        <button class="btn-auth" style="background:none; color:red" onclick="fecharAdmin()">Cancelar</button>
+        <textarea id="adm-conteudo" class="input-auth"
+            placeholder="Cole a cifra aqui... (Mantenha o alinhamento de espaços!)"></textarea>
+        <button class="btn-auth" style="background:#27ae60" onclick="salvarCifra()">SALVAR NA NUVEM</button>
+        <button class="btn-auth" style="background:none; color:red" onclick="fecharAdmin()">Cancelar / Voltar</button>
     </div>
 
     <script>
+        // --- CONFIGURAÇÃO SUPABASE AJUSTADA PARA MOBILE ---
         const SUPABASE_URL = 'https://hiqvtyplnioipupnvarc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcXZ0eXBsbmlvaXB1cG52YXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzE5MzgsImV4cCI6MjA4ODQwNzkzOH0.fPy4XdueQhgSIVeBscraQUAyt0STdGYPXCLEvgpSHS4';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 1. A escala cromática completa (12 semitões)
+        // Inicialização com persistência forçada para evitar bugs no Safari/Chrome Mobile
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
+
         const notasEscala = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        let todasMusicas = [];
+        let musicaAtiva = null;
+        let deslocamento = 0;
 
-        function transpor(acordeOriginal, semitones) {
-            // Regex para capturar a Nota Base (ex: C# ou Ab ou G)
-            // Ela busca uma letra de A-G, seguida opcionalmente de # ou b
-            const modeloNota = /^([A-G][#b]?)(.*)/;
-            const match = acordeOriginal.match(modeloNota);
-
-            if (!match) return acordeOriginal;
-
-            let notaBase = match[1];     // Ex: "C#"
-            let complemento = match[2];  // Ex: "m7(9)" ou "sus4"
-
-            // Padronização de Bemóis para Sustenidos (para busca na lista)
-            const dicionarioBemoes = { "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#" };
-            if (dicionarioBemoes[notaBase]) notaBase = dicionarioBemoes[notaBase];
-
-            // Encontra a posição atual na escala
-            let indiceAtual = notasEscala.indexOf(notaBase);
-            if (indiceAtual === -1) return acordeOriginal;
-
-            // Calcula o novo índice (roda a escala de 12 notas)
-            let novoIndice = (indiceAtual + semitones) % 12;
-            if (novoIndice < 0) novoIndice += 12;
-
-            const novaNotaBase = notasEscala[novoIndice];
-
-            // Retorna a nova nota com o complemento original (mantendo o m, 7, etc)
-            return `<span class="nota-musical">${novaNotaBase}${complemento}</span>`;
+        // --- AUTENTICAÇÃO ---
+        async function entrar() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('senha').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert("Erro: " + error.message);
+            // O onAuthStateChange cuidará do redirecionamento
         }
 
-        function atualizarCifra() {
-            const visor = document.getElementById('visor-cifra');
+        async function cadastrar() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('senha').value;
+            const { error } = await _supabase.auth.signUp({ email, password });
+            if (error) alert(error.message); else alert("Verifique seu e-mail ou tente entrar!");
+        }
 
-            // Esta Regex localiza palavras que começam com notas musicais A-G
-            // Evita capturar palavras comuns da letra da música
-            const regexAcordes = /\b[A-G][#b]?(?:m|maj|dim|aug|sus|add|M)?(?:\d+)?(?:\/[A-G][#b]?)?\b/g;
+        async function sair() {
+            await _supabase.auth.signOut();
+        }
 
-            let textoFinal = musicaAtiva.conteudo.replace(regexAcordes, (acorde) => {
-                return transpor(acorde, deslocamento);
+        // Observador de estado: Garante que o app reaja na hora ao login/logout no celular
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || session) {
+                document.getElementById('tela-auth').style.display = 'none';
+                baixarDados();
+            } else if (event === 'SIGNED_OUT') {
+                document.getElementById('tela-auth').style.display = 'flex';
+                document.getElementById('lista-musicas').innerHTML = "";
+            }
+        });
+
+        async function verificarSessao() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                document.getElementById('tela-auth').style.display = 'none';
+                baixarDados();
+            }
+        }
+
+        // --- LÓGICA DE DADOS ---
+        async function baixarDados() {
+            const { data, error } = await _supabase.from('musicas').select('*').order('titulo', { ascending: true });
+            if (error) console.error("Erro ao baixar:", error);
+            todasMusicas = data || [];
+            renderizar(todasMusicas);
+        }
+
+        async function salvarCifra() {
+            const titulo = document.getElementById('adm-titulo').value;
+            const categoria = document.getElementById('adm-categoria').value;
+            const conteudo = document.getElementById('adm-conteudo').value;
+
+            if (!titulo || !conteudo) return alert("Preencha título e cifra!");
+
+            const { error } = await _supabase.from('musicas').insert([{ titulo, categoria, conteudo }]);
+            if (error) alert(error.message);
+            else { fecharAdmin(); baixarDados(); }
+        }
+
+        async function apagarMusica(id, event) {
+            event.stopPropagation();
+            if (confirm("Deseja apagar esta música permanentemente?")) {
+                const { error } = await _supabase.from('musicas').delete().eq('id', id);
+                if (error) alert("Erro ao apagar"); else baixarDados();
+            }
+        }
+
+        // --- INTERFACE ---
+        function renderizar(lista) {
+            const container = document.getElementById('lista-musicas');
+            container.innerHTML = "";
+            if (lista.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>Nenhuma música encontrada.</p>";
+                return;
+            }
+            lista.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'card-musica';
+                div.innerHTML = `
+                    <div class="info-musica"><b>${m.titulo}</b><br><small style="color:#888">${m.categoria}</small></div>
+                    <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>
+                `;
+                div.querySelector('.info-musica').onclick = () => { musicaAtiva = m; deslocamento = 0; abrirCifra(); };
+                container.appendChild(div);
             });
-
-            visor.innerHTML = textoFinal;
         }
-        function transpor(nota, semitons) {
-            let base = nota.match(/[A-G][#b]?/)[0];
-            let suf = nota.replace(base, "");
-            let idx = (notasEscala.indexOf(base) + semitons) % 12;
-            if (idx < 0) idx += 12;
-            return `<span class="nota-musical">${notasEscala[idx]}${suf}</span>`;
+
+        function pesquisar(termo) {
+            const f = todasMusicas.filter(m => m.titulo.toLowerCase().includes(termo.toLowerCase()));
+            renderizar(f);
+        }
+
+        function filtrar(cat) {
+            const f = cat === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === cat);
+            renderizar(f);
+            // Feedback visual nos botões
+            document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function abrirCifra() {
+            document.getElementById('area-cifra').style.display = 'flex';
+            document.getElementById('titulo-view').innerText = musicaAtiva.titulo;
+            atualizarCifraVisor();
         }
 
         function fecharCifra() { document.getElementById('area-cifra').style.display = 'none'; }
         function abrirAdmin() { document.getElementById('area-admin').style.display = 'block'; }
         function fecharAdmin() { document.getElementById('area-admin').style.display = 'none'; }
-        function ajustarTom(v) { deslocamento += v; atualizarCifra(); }
+        function ajustarTom(v) { deslocamento += v; atualizarCifraVisor(); }
 
+        function atualizarCifraVisor() {
+            const visor = document.getElementById('visor-cifra');
+            const displayTom = document.getElementById('display-tom');
+            const regexAcordes = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add|M)?(?:\d+)?(?:\/[A-G][#b]?)?)\b/g;
+
+            visor.innerHTML = musicaAtiva.conteudo.replace(regexAcordes, (acorde) => transporAcorde(acorde, deslocamento));
+            displayTom.innerText = deslocamento === 0 ? "Tom Original" : `Tom: ${deslocamento > 0 ? '+' : ''}${deslocamento}`;
+        }
+
+        function transporAcorde(acordeCompleto, semitons) {
+            const match = acordeCompleto.match(/^([A-G][#b]?)(.*)/);
+            if (!match) return acordeCompleto;
+
+            let notaBase = match[1];
+            let complemento = match[2];
+
+            const mapBemoes = { "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#" };
+            if (mapBemoes[notaBase]) notaBase = mapBemoes[notaBase];
+
+            let idx = notasEscala.indexOf(notaBase);
+            if (idx === -1) return acordeCompleto;
+
+            let novoIdx = (idx + semitons) % 12;
+            if (novoIdx < 0) novoIdx += 12;
+
+            return `<span class="nota-musical">${notasEscala[novoIdx]}${complemento}</span>`;
+        }
+
+        // Inicia verificação
         verificarSessao();
     </script>
 </body>
