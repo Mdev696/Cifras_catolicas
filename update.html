@@ -4,19 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cifras Católicas Pro</title>
+    <title>Cifras Católicas Pro - Mobile</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #e74c3c;
             --bg: #f8f9fa;
             --text: #333;
+            --card: #ffffff;
+            --input-bg: #ffffff;
+            --header-text: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --card: #1e1e1e;
+            --input-bg: #2d2d2d;
+            --primary: #000000;
         }
 
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            transition: background 0.3s, color 0.3s;
         }
 
         body {
@@ -29,11 +43,11 @@
             flex-direction: column;
         }
 
-        /* TELA DE LOGIN */
+        /* AUTH */
         #tela-auth {
             position: fixed;
             inset: 0;
-            background: white;
+            background: var(--bg);
             z-index: 100;
             display: flex;
             flex-direction: column;
@@ -48,6 +62,8 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text);
         }
 
         .btn-auth {
@@ -59,48 +75,50 @@
             border-radius: 8px;
             font-weight: bold;
             margin-bottom: 10px;
+            cursor: pointer;
         }
 
-        /* HEADER E BUSCA */
+        /* HEADER */
         header {
             background: var(--primary);
-            color: white;
+            color: var(--header-text);
             padding: 10px 15px;
             z-index: 50;
+            flex-shrink: 0;
         }
 
         .barra-busca {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 20px;
             border: none;
             margin-top: 10px;
             font-size: 14px;
             outline: none;
+            background: var(--input-bg);
+            color: var(--text);
         }
 
-        /* PLAYLISTS */
         .menu-playlists {
             display: flex;
             overflow-x: auto;
-            background: #fff;
+            background: var(--card);
             padding: 10px;
             gap: 8px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #4443;
+            flex-shrink: 0;
+            scrollbar-width: none;
         }
 
         .btn-cat {
-            background: #f0f0f0;
+            background: #8882;
+            color: var(--text);
             border: none;
             padding: 8px 16px;
             border-radius: 20px;
             white-space: nowrap;
             font-size: 13px;
-        }
-
-        .btn-cat.active {
-            background: var(--primary);
-            color: white;
+            font-weight: 500;
         }
 
         /* LISTA */
@@ -112,14 +130,25 @@
         }
 
         .card-musica {
-            background: white;
+            background: var(--card);
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+        }
+
+        .checkbox-selecao {
+            display: none;
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent);
+        }
+
+        .modo-selecao-ativo .checkbox-selecao {
+            display: block;
         }
 
         .info-musica {
@@ -128,33 +157,44 @@
         }
 
         .btn-apagar {
-            color: #ccc;
+            color: #888;
             border: none;
             background: none;
-            font-size: 20px;
-            padding: 10px;
+            font-size: 24px;
+            padding: 0 10px;
             cursor: pointer;
         }
 
-        /* VISUALIZADOR */
+        /* CIFRA VIEW */
         #area-cifra {
             display: none;
             position: fixed;
             inset: 0;
-            background: white;
+            background: var(--bg);
             z-index: 60;
             flex-direction: column;
+        }
+
+        .barra-topo-view {
+            padding: 15px;
+            background: var(--card);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #4443;
         }
 
         pre {
             flex: 1;
             padding: 20px;
             overflow: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
             line-height: 1.6;
             margin: 0;
             white-space: pre;
+            background: var(--bg);
+            color: var(--text);
         }
 
         .nota-musical {
@@ -162,10 +202,9 @@
             font-weight: bold;
         }
 
-        /* BOTÃO FLUTUANTE */
         .btn-floating {
             position: fixed;
-            bottom: 20px;
+            bottom: 25px;
             right: 20px;
             width: 60px;
             height: 60px;
@@ -182,27 +221,43 @@
             background: var(--primary);
             padding: 15px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-around;
             color: white;
             align-items: center;
+            gap: 10px;
         }
 
-        .btn-tom {
+        .btn-ctrl {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 1px solid white;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
         }
 
+        /* ADMIN */
         #area-admin {
             display: none;
             position: fixed;
             inset: 0;
-            background: white;
+            background: var(--bg);
             z-index: 70;
             padding: 20px;
             overflow-y: auto;
+        }
+
+        /* PDF AREA - HIDDEN BUT ACTIVE */
+        #temp-pdf-area {
+            position: fixed;
+            top: 0;
+            left: -10000px;
+            width: 700px;
+            background: white !important;
+            color: black !important;
+            z-index: -1;
         }
     </style>
 </head>
@@ -211,24 +266,30 @@
 
     <div id="tela-auth">
         <h2 style="text-align:center;">Cifras Católicas</h2>
-        <input type="email" id="email" class="input-auth" placeholder="E-mail">
-        <input type="password" id="senha" class="input-auth" placeholder="Senha">
+        <input type="email" id="email" class="input-auth" placeholder="Seu E-mail">
+        <input type="password" id="senha" class="input-auth" placeholder="Sua Senha">
         <button class="btn-auth" onclick="entrar()">Entrar</button>
-        <button class="btn-auth" style="background:#eee; color:#333" onclick="cadastrar()">Registar</button>
+        <button class="btn-auth" style="background:#8883; color:var(--text)" onclick="cadastrar()">Registar</button>
     </div>
 
     <header>
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-            <b>O Meu Portal</b>
-            <button onclick="sair()" style="background:none; border:none; color:white; font-size:12px;">Sair</button>
+            <b>Meu Repertório</b>
+            <div>
+                <button id="btn-pdf-mode" onclick="toggleModoSelecao()"
+                    style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px; font-size:12px; margin-right:10px;">PDF</button>
+                <button onclick="toggleDarkMode()"
+                    style="background:none; border:none; color:white; font-size:20px; margin-right:15px;">🌓</button>
+                <button onclick="sair()"
+                    style="background:none; border:none; color:white; font-size:12px;">Sair</button>
+            </div>
         </div>
-        <input type="text" class="barra-busca" placeholder="Pesquisar música..." oninput="pesquisar(this.value)">
+        <input type="text" class="barra-busca" placeholder="🔍 Pesquisar..." oninput="pesquisar(this.value)">
     </header>
 
-    <div class="menu-playlists">
+    <div class="menu-playlists" id="nav-categorias">
         <button class="btn-cat" onclick="filtrar('Missa')">Missa</button>
         <button class="btn-cat" onclick="filtrar('Grupo de Oração')">Grupo de Oração</button>
-        <button class="btn-cat" onclick="filtrar('Terço')">Terço</button>
         <button class="btn-cat" onclick="filtrar('A-Z')">Todas</button>
     </div>
 
@@ -237,32 +298,42 @@
     <button class="btn-floating" onclick="abrirAdmin()">+</button>
 
     <div id="area-cifra">
-        <div style="padding:15px; background:#eee; display:flex; justify-content:space-between;">
-            <button onclick="fecharCifra()" style="border:none; background:none; font-size:16px;">← Voltar</button>
+        <div class="barra-topo-view">
+            <button onclick="fecharCifra()" style="border:none; background:none; font-size:16px; color:var(--text);">←
+                Voltar</button>
             <b id="titulo-view"></b>
+            <button onclick="editarMusicaAtiva()"
+                style="border:none; background:none; font-size:14px; color:var(--accent); font-weight:bold;">EDITAR</button>
         </div>
         <pre id="visor-cifra"></pre>
         <footer-cifra>
-            <button class="btn-tom" onclick="ajustarTom(-1)">- Tom</button>
-            <span id="display-tom">Tom Original</span>
-            <button class="btn-tom" onclick="ajustarTom(1)">+ Tom</button>
+            <div>
+                <button class="btn-ctrl" onclick="ajustarTom(-1)">- Tom</button>
+                <span id="display-tom" style="margin: 0 5px; font-size: 12px;">Original</span>
+                <button class="btn-ctrl" onclick="ajustarTom(1)">+ Tom</button>
+            </div>
+            <div style="border-left: 1px solid #fff5; padding-left: 10px;">
+                <button class="btn-ctrl" onclick="alterarFonte(-2)">A-</button>
+                <button class="btn-ctrl" onclick="alterarFonte(2)">A+</button>
+            </div>
         </footer-cifra>
     </div>
 
     <div id="area-admin">
-        <h2>Nova Cifra</h2>
+        <h2 id="admin-header">Nova Cifra</h2>
         <input type="text" id="adm-titulo" class="input-auth" placeholder="Título">
         <select id="adm-categoria" class="input-auth">
             <option value="Missa">Missa</option>
             <option value="Grupo de Oração">Grupo de Oração</option>
             <option value="Terço">Terço</option>
-            <option value="Retiro">Retiro</option>
         </select>
-        <textarea id="adm-conteudo" class="input-auth" style="height:300px"
-            placeholder="Cola a cifra aqui..."></textarea>
-        <button class="btn-auth" style="background:#27ae60" onclick="salvarCifra()">SALVAR NO SUPABASE</button>
+        <textarea id="adm-conteudo" class="input-auth" style="height:300px; font-family:monospace;"
+            placeholder="Cole a cifra..."></textarea>
+        <button class="btn-auth" style="background:#27ae60" onclick="salvarCifra()">SALVAR</button>
         <button class="btn-auth" style="background:none; color:red" onclick="fecharAdmin()">Cancelar</button>
     </div>
+
+    <div id="temp-pdf-area"></div>
 
     <script>
         const SUPABASE_URL = 'https://hiqvtyplnioipupnvarc.supabase.co';
@@ -273,61 +344,73 @@
         let todasMusicas = [];
         let musicaAtiva = null;
         let deslocamento = 0;
+        let tamanhoFonte = 16;
+        let editandoId = null;
+        let modoSelecaoPDF = false;
 
-        // --- AUTH ---
-        async function entrar() {
-            const { error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('email').value,
-                password: document.getElementById('senha').value
-            });
-            if (error) alert("Erro: " + error.message); else verificarSessao();
-        }
+        function toggleModoSelecao() {
+            modoSelecaoPDF = !modoSelecaoPDF;
+            const container = document.getElementById('lista-musicas');
+            const btnPdf = document.getElementById('btn-pdf-mode');
 
-        async function cadastrar() {
-            const { error } = await _supabase.auth.signUp({
-                email: document.getElementById('email').value,
-                password: document.getElementById('senha').value
-            });
-            if (error) alert(error.message); else alert("Registo feito! Tente entrar.");
-        }
-
-        async function sair() { await _supabase.auth.signOut(); verificarSessao(); }
-
-        async function verificarSessao() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                document.getElementById('tela-auth').style.display = 'none';
-                baixarDados();
+            if (modoSelecaoPDF) {
+                container.classList.add('modo-selecao-ativo');
+                btnPdf.innerText = "BAIXAR SELECIONADAS";
+                btnPdf.style.background = "#27ae60";
             } else {
-                document.getElementById('tela-auth').style.display = 'flex';
+                const marcados = document.querySelectorAll('.checkbox-selecao:checked');
+                if (marcados.length > 0) {
+                    gerarPDFSelecao();
+                }
+                container.classList.remove('modo-selecao-ativo');
+                btnPdf.innerText = "PDF";
+                btnPdf.style.background = "var(--accent)";
+                document.querySelectorAll('.checkbox-selecao').forEach(c => c.checked = false);
             }
         }
 
-        // --- DADOS ---
+        async function gerarPDFSelecao() {
+            const checkboxes = document.querySelectorAll('.checkbox-selecao:checked');
+            const areaPdf = document.getElementById('temp-pdf-area');
+            areaPdf.innerHTML = "";
+
+            checkboxes.forEach((cb) => {
+                const musica = todasMusicas.find(m => m.id === cb.value);
+                if (musica) {
+                    const div = document.createElement('div');
+                    div.style.padding = "40px";
+                    div.style.background = "white";
+                    div.style.color = "black";
+                    div.style.pageBreakAfter = "always";
+                    div.innerHTML = `<h1 style="border-bottom:2px solid #000; padding-bottom:10px; font-family:sans-serif; color:black;">${musica.titulo}</h1>
+                                     <pre style="font-family:monospace; font-size:14px; color:black; white-space:pre-wrap; border:none; margin-top:20px;">${musica.conteudo}</pre>`;
+                    areaPdf.appendChild(div);
+                }
+            });
+
+            const opt = {
+                margin: 10,
+                filename: 'meu_repertorio.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            alert("A gerar PDF... Aguarde um momento.");
+
+            // Pequeno delay para garantir que o DOM renderizou o conteúdo branco/preto
+            setTimeout(async () => {
+                await html2pdf().set(opt).from(areaPdf).save();
+                areaPdf.innerHTML = "";
+            }, 500);
+        }
+
         async function baixarDados() {
             const { data } = await _supabase.from('musicas').select('*').order('titulo', { ascending: true });
             todasMusicas = data || [];
             renderizar(todasMusicas);
         }
 
-        async function salvarCifra() {
-            const { error } = await _supabase.from('musicas').insert([{
-                titulo: document.getElementById('adm-titulo').value,
-                categoria: document.getElementById('adm-categoria').value,
-                conteudo: document.getElementById('adm-conteudo').value
-            }]);
-            if (error) alert(error.message); else { fecharAdmin(); baixarDados(); }
-        }
-
-        async function apagarMusica(id, event) {
-            event.stopPropagation();
-            if (confirm("Desejas apagar esta música permanentemente?")) {
-                const { error } = await _supabase.from('musicas').delete().eq('id', id);
-                if (error) alert("Erro ao apagar"); else baixarDados();
-            }
-        }
-
-        // --- LOGICA UI ---
         function renderizar(lista) {
             const container = document.getElementById('lista-musicas');
             container.innerHTML = "";
@@ -335,50 +418,104 @@
                 const div = document.createElement('div');
                 div.className = 'card-musica';
                 div.innerHTML = `
-                <div class="info-musica"><b>${m.titulo}</b><br><small>${m.categoria}</small></div>
-                <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>
-            `;
-                div.querySelector('.info-musica').onclick = () => { musicaAtiva = m; deslocamento = 0; abrirCifra(); };
+                    <input type="checkbox" class="checkbox-selecao" value="${m.id}">
+                    <div class="info-musica"><b>${m.titulo}</b><br><small>${m.categoria}</small></div>
+                    <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>`;
+
+                div.querySelector('.info-musica').onclick = () => {
+                    if (modoSelecaoPDF) {
+                        const c = div.querySelector('.checkbox-selecao');
+                        c.checked = !c.checked;
+                    } else {
+                        musicaAtiva = m; deslocamento = 0; abrirCifra();
+                    }
+                };
                 container.appendChild(div);
             });
-        }
-
-        function pesquisar(termo) {
-            const f = todasMusicas.filter(m => m.titulo.toLowerCase().includes(termo.toLowerCase()));
-            renderizar(f);
-        }
-
-        function filtrar(cat) {
-            const f = cat === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === cat);
-            renderizar(f);
         }
 
         function abrirCifra() {
             document.getElementById('area-cifra').style.display = 'flex';
             document.getElementById('titulo-view').innerText = musicaAtiva.titulo;
-            atualizarCifra();
+            atualizarCifraVisor();
         }
 
-        function atualizarCifra() {
-            const regex = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add)?(?:\d+)?)\b/g;
-            document.getElementById('visor-cifra').innerHTML = musicaAtiva.conteudo.replace(regex, n => transpor(n, deslocamento));
-            document.getElementById('display-tom').innerText = deslocamento === 0 ? "Tom Original" : `Tom: ${deslocamento > 0 ? '+' : ''}${deslocamento}`;
+        function atualizarCifraVisor() {
+            const visor = document.getElementById('visor-cifra');
+            const regexAcordes = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add|M)?(?:\d+)?(?:\/[A-G][#b]?)?)\b/g;
+            visor.innerHTML = musicaAtiva.conteudo.replace(regexAcordes, (ac) => transporAcorde(ac, deslocamento));
+            document.getElementById('display-tom').innerText = deslocamento === 0 ? "Original" : `Tom: ${deslocamento > 0 ? '+' : ''}${deslocamento}`;
         }
 
-        function transpor(nota, semitons) {
-            let base = nota.match(/[A-G][#b]?/)[0];
-            let suf = nota.replace(base, "");
-            let idx = (notasEscala.indexOf(base) + semitons) % 12;
-            if (idx < 0) idx += 12;
-            return `<span class="nota-musical">${notasEscala[idx]}${suf}</span>`;
+        function transporAcorde(ac, st) {
+            const match = ac.match(/^([A-G][#b]?)(.*)/);
+            if (!match) return ac;
+            let nota = match[1];
+            const mapB = { "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#" };
+            if (mapB[nota]) nota = mapB[nota];
+            let idx = notasEscala.indexOf(nota);
+            if (idx === -1) return ac;
+            let nIdx = (idx + st) % 12;
+            if (nIdx < 0) nIdx += 12;
+            return `<span class="nota-musical">${notasEscala[nIdx]}${match[2]}</span>`;
         }
 
+        async function salvarCifra() {
+            const p = {
+                titulo: document.getElementById('adm-titulo').value,
+                categoria: document.getElementById('adm-categoria').value,
+                conteudo: document.getElementById('adm-conteudo').value
+            };
+            let res = editandoId ? await _supabase.from('musicas').update(p).eq('id', editandoId) : await _supabase.from('musicas').insert([p]);
+            if (res.error) alert(res.error.message); else { fecharAdmin(); baixarDados(); if (editandoId) fecharCifra(); }
+        }
+
+        function editarMusicaAtiva() {
+            if (!musicaAtiva) return;
+            editandoId = musicaAtiva.id;
+            document.getElementById('admin-header').innerText = "Editar Cifra";
+            document.getElementById('adm-titulo').value = musicaAtiva.titulo;
+            document.getElementById('adm-categoria').value = musicaAtiva.categoria;
+            document.getElementById('adm-conteudo').value = musicaAtiva.conteudo;
+            abrirAdmin();
+        }
+
+        async function apagarMusica(id, event) {
+            event.stopPropagation();
+            if (confirm("Apagar cifra?")) { await _supabase.from('musicas').delete().eq('id', id); baixarDados(); }
+        }
+
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
         function fecharCifra() { document.getElementById('area-cifra').style.display = 'none'; }
         function abrirAdmin() { document.getElementById('area-admin').style.display = 'block'; }
-        function fecharAdmin() { document.getElementById('area-admin').style.display = 'none'; }
-        function ajustarTom(v) { deslocamento += v; atualizarCifra(); }
+        function fecharAdmin() { document.getElementById('area-admin').style.display = 'none'; editandoId = null; }
+        function ajustarTom(v) { deslocamento += v; atualizarCifraVisor(); }
+        function alterarFonte(d) { tamanhoFonte += d; document.getElementById('visor-cifra').style.fontSize = tamanhoFonte + 'px'; }
+        function pesquisar(t) { renderizar(todasMusicas.filter(m => m.titulo.toLowerCase().includes(t.toLowerCase()))); }
+        function filtrar(c) { renderizar(c === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === c)); }
 
-        verificarSessao();
+        async function entrar() {
+            const { error } = await _supabase.auth.signInWithPassword({
+                email: document.getElementById('email').value, password: document.getElementById('senha').value
+            });
+            if (error) alert(error.message);
+        }
+
+        async function cadastrar() {
+            const { error } = await _supabase.auth.signUp({
+                email: document.getElementById('email').value, password: document.getElementById('senha').value
+            });
+            if (error) alert(error.message); else alert("Confirme o e-mail cadastrado!");
+        }
+
+        async function sair() { await _supabase.auth.signOut(); }
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) { document.getElementById('tela-auth').style.display = 'none'; baixarDados(); }
+            else { document.getElementById('tela-auth').style.display = 'flex'; }
+        });
+
+        if (localStorage.getItem('tema') === 'dark') document.body.classList.add('dark-mode');
     </script>
 </body>
 
