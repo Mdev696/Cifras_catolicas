@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cifras Católicas Pro - Mobile</title>
+    <title>Cifras Católicas Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -248,17 +247,6 @@
             padding: 20px;
             overflow-y: auto;
         }
-
-        /* PDF AREA - HIDDEN BUT ACTIVE */
-        #temp-pdf-area {
-            position: fixed;
-            top: 0;
-            left: -10000px;
-            width: 700px;
-            background: white !important;
-            color: black !important;
-            z-index: -1;
-        }
     </style>
 </head>
 
@@ -276,8 +264,9 @@
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
             <b>Meu Repertório</b>
             <div>
-                <button id="btn-pdf-mode" onclick="toggleModoSelecao()"
-                    style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px; font-size:12px; margin-right:10px;">PDF</button>
+                <button id="btn-doc-mode" onclick="toggleModoSelecao()"
+                    style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px; font-size:12px; margin-right:10px;">BAIXAR
+                    DOC</button>
                 <button onclick="toggleDarkMode()"
                     style="background:none; border:none; color:white; font-size:20px; margin-right:15px;">🌓</button>
                 <button onclick="sair()"
@@ -289,6 +278,7 @@
 
     <div class="menu-playlists" id="nav-categorias">
         <button class="btn-cat" onclick="filtrar('Missa')">Missa</button>
+        <button class="btn-cat" onclick="filtrar('Salmo')">Salmo</button>
         <button class="btn-cat" onclick="filtrar('Grupo de Oração')">Grupo de Oração</button>
         <button class="btn-cat" onclick="filtrar('A-Z')">Todas</button>
     </div>
@@ -324,6 +314,7 @@
         <input type="text" id="adm-titulo" class="input-auth" placeholder="Título">
         <select id="adm-categoria" class="input-auth">
             <option value="Missa">Missa</option>
+             <option value="Salmo">Salmo</option>
             <option value="Grupo de Oração">Grupo de Oração</option>
             <option value="Terço">Terço</option>
         </select>
@@ -332,8 +323,6 @@
         <button class="btn-auth" style="background:#27ae60" onclick="salvarCifra()">SALVAR</button>
         <button class="btn-auth" style="background:none; color:red" onclick="fecharAdmin()">Cancelar</button>
     </div>
-
-    <div id="temp-pdf-area"></div>
 
     <script>
         const SUPABASE_URL = 'https://hiqvtyplnioipupnvarc.supabase.co';
@@ -346,65 +335,56 @@
         let deslocamento = 0;
         let tamanhoFonte = 16;
         let editandoId = null;
-        let modoSelecaoPDF = false;
+        let modoSelecaoDOC = false;
 
+        // --- MODO SELEÇÃO E GERADOR DE DOCUMENTO ---
         function toggleModoSelecao() {
-            modoSelecaoPDF = !modoSelecaoPDF;
+            modoSelecaoDOC = !modoSelecaoDOC;
             const container = document.getElementById('lista-musicas');
-            const btnPdf = document.getElementById('btn-pdf-mode');
+            const btnDoc = document.getElementById('btn-doc-mode');
 
-            if (modoSelecaoPDF) {
+            if (modoSelecaoDOC) {
                 container.classList.add('modo-selecao-ativo');
-                btnPdf.innerText = "BAIXAR SELECIONADAS";
-                btnPdf.style.background = "#27ae60";
+                btnDoc.innerText = "CONFIRMAR DOWNLOAD";
+                btnDoc.style.background = "#27ae60";
+                alert("Selecione as músicas e clique no botão verde para baixar.");
             } else {
                 const marcados = document.querySelectorAll('.checkbox-selecao:checked');
                 if (marcados.length > 0) {
-                    gerarPDFSelecao();
+                    gerarDocumento(marcados);
                 }
                 container.classList.remove('modo-selecao-ativo');
-                btnPdf.innerText = "PDF";
-                btnPdf.style.background = "var(--accent)";
+                btnDoc.innerText = "BAIXAR DOC";
+                btnDoc.style.background = "var(--accent)";
                 document.querySelectorAll('.checkbox-selecao').forEach(c => c.checked = false);
             }
         }
 
-        async function gerarPDFSelecao() {
-            const checkboxes = document.querySelectorAll('.checkbox-selecao:checked');
-            const areaPdf = document.getElementById('temp-pdf-area');
-            areaPdf.innerHTML = "";
+        function gerarDocumento(marcados) {
+            let conteudoFinal = "";
 
-            checkboxes.forEach((cb) => {
-                const musica = todasMusicas.find(m => m.id === cb.value);
-                if (musica) {
-                    const div = document.createElement('div');
-                    div.style.padding = "40px";
-                    div.style.background = "white";
-                    div.style.color = "black";
-                    div.style.pageBreakAfter = "always";
-                    div.innerHTML = `<h1 style="border-bottom:2px solid #000; padding-bottom:10px; font-family:sans-serif; color:black;">${musica.titulo}</h1>
-                                     <pre style="font-family:monospace; font-size:14px; color:black; white-space:pre-wrap; border:none; margin-top:20px;">${musica.conteudo}</pre>`;
-                    areaPdf.appendChild(div);
+            marcados.forEach((cb) => {
+                const m = todasMusicas.find(mus => mus.id === cb.value);
+                if (m) {
+                    conteudoFinal += `------------------------------------------\r\n`;
+                    conteudoFinal += `${m.titulo.toUpperCase()}\r\n`;
+                    conteudoFinal += `Categoria: ${m.categoria}\r\n`;
+                    conteudoFinal += `------------------------------------------\r\n\r\n`;
+                    conteudoFinal += `${m.conteudo}\r\n\r\n\r\n`;
                 }
             });
 
-            const opt = {
-                margin: 10,
-                filename: 'meu_repertorio.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            alert("A gerar PDF... Aguarde um momento.");
-
-            // Pequeno delay para garantir que o DOM renderizou o conteúdo branco/preto
-            setTimeout(async () => {
-                await html2pdf().set(opt).from(areaPdf).save();
-                areaPdf.innerHTML = "";
-            }, 500);
+            // Criar o arquivo e disparar download
+            const blob = new Blob([conteudoFinal], { type: "application/msword" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "meu_repertorio.doc";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
+        // --- FUNÇÕES DE DADOS E INTERFACE ---
         async function baixarDados() {
             const { data } = await _supabase.from('musicas').select('*').order('titulo', { ascending: true });
             todasMusicas = data || [];
@@ -423,7 +403,7 @@
                     <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>`;
 
                 div.querySelector('.info-musica').onclick = () => {
-                    if (modoSelecaoPDF) {
+                    if (modoSelecaoDOC) {
                         const c = div.querySelector('.checkbox-selecao');
                         c.checked = !c.checked;
                     } else {
@@ -485,6 +465,7 @@
             if (confirm("Apagar cifra?")) { await _supabase.from('musicas').delete().eq('id', id); baixarDados(); }
         }
 
+        // --- AUXILIARES ---
         function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
         function fecharCifra() { document.getElementById('area-cifra').style.display = 'none'; }
         function abrirAdmin() { document.getElementById('area-admin').style.display = 'block'; }
@@ -494,6 +475,7 @@
         function pesquisar(t) { renderizar(todasMusicas.filter(m => m.titulo.toLowerCase().includes(t.toLowerCase()))); }
         function filtrar(c) { renderizar(c === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === c)); }
 
+        // --- AUTH ---
         async function entrar() {
             const { error } = await _supabase.auth.signInWithPassword({
                 email: document.getElementById('email').value, password: document.getElementById('senha').value

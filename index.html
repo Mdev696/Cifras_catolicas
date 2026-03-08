@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cifras Católicas Pro - Mobile</title>
+    <title>Cifras Católicas Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --primary: #2c3e50;
@@ -17,7 +18,6 @@
             --header-text: #ffffff;
         }
 
-        /* Variáveis do Modo Escuro */
         body.dark-mode {
             --bg: #121212;
             --text: #e0e0e0;
@@ -42,7 +42,7 @@
             flex-direction: column;
         }
 
-        /* LOGIN */
+        /* AUTH */
         #tela-auth {
             position: fixed;
             inset: 0;
@@ -77,7 +77,7 @@
             cursor: pointer;
         }
 
-        /* HEADER E BUSCA */
+        /* HEADER */
         header {
             background: var(--primary);
             color: var(--header-text);
@@ -98,7 +98,6 @@
             color: var(--text);
         }
 
-        /* PLAYLISTS */
         .menu-playlists {
             display: flex;
             overflow-x: auto;
@@ -121,11 +120,6 @@
             font-weight: 500;
         }
 
-        .btn-cat.active {
-            background: var(--accent);
-            color: white;
-        }
-
         /* LISTA */
         #lista-musicas {
             flex: 1;
@@ -140,9 +134,20 @@
             margin-bottom: 10px;
             border-radius: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+        }
+
+        .checkbox-selecao {
+            display: none;
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent);
+        }
+
+        .modo-selecao-ativo .checkbox-selecao {
+            display: block;
         }
 
         .info-musica {
@@ -159,7 +164,7 @@
             cursor: pointer;
         }
 
-        /* VISUALIZADOR DE CIFRA */
+        /* CIFRA VIEW */
         #area-cifra {
             display: none;
             position: fixed;
@@ -196,7 +201,6 @@
             font-weight: bold;
         }
 
-        /* BOTÃO FLUTUANTE */
         .btn-floating {
             position: fixed;
             bottom: 25px;
@@ -233,6 +237,7 @@
             font-size: 14px;
         }
 
+        /* ADMIN */
         #area-admin {
             display: none;
             position: fixed;
@@ -259,6 +264,9 @@
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
             <b>Meu Repertório</b>
             <div>
+                <button id="btn-doc-mode" onclick="toggleModoSelecao()"
+                    style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px; font-size:12px; margin-right:10px;">BAIXAR
+                    DOC</button>
                 <button onclick="toggleDarkMode()"
                     style="background:none; border:none; color:white; font-size:20px; margin-right:15px;">🌓</button>
                 <button onclick="sair()"
@@ -270,6 +278,7 @@
 
     <div class="menu-playlists" id="nav-categorias">
         <button class="btn-cat" onclick="filtrar('Missa')">Missa</button>
+        <button class="btn-cat" onclick="filtrar('Salmo')">Salmo</button>
         <button class="btn-cat" onclick="filtrar('Grupo de Oração')">Grupo de Oração</button>
         <button class="btn-cat" onclick="filtrar('A-Z')">Todas</button>
     </div>
@@ -305,6 +314,7 @@
         <input type="text" id="adm-titulo" class="input-auth" placeholder="Título">
         <select id="adm-categoria" class="input-auth">
             <option value="Missa">Missa</option>
+            <option value="Salmo">Salmo</option>
             <option value="Grupo de Oração">Grupo de Oração</option>
             <option value="Terço">Terço</option>
         </select>
@@ -317,119 +327,89 @@
     <script>
         const SUPABASE_URL = 'https://hiqvtyplnioipupnvarc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcXZ0eXBsbmlvaXB1cG52YXJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzE5MzgsImV4cCI6MjA4ODQwNzkzOH0.fPy4XdueQhgSIVeBscraQUAyt0STdGYPXCLEvgpSHS4';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-            auth: { persistSession: true, autoRefreshToken: true }
-        });
-
-        // Escala cromática de 12 notas para lógica de meio tom
         const notasEscala = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
         let todasMusicas = [];
         let musicaAtiva = null;
         let deslocamento = 0;
         let tamanhoFonte = 16;
         let editandoId = null;
+        let modoSelecaoDOC = false;
 
-        // --- TEMA CLARO/ESCURO ---
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('tema', isDark ? 'dark' : 'light');
-        }
+        // --- MODO SELEÇÃO E GERADOR DE DOCUMENTO ---
+        function toggleModoSelecao() {
+            modoSelecaoDOC = !modoSelecaoDOC;
+            const container = document.getElementById('lista-musicas');
+            const btnDoc = document.getElementById('btn-doc-mode');
 
-        // --- TAMANHO DA FONTE ---
-        function alterarFonte(delta) {
-            tamanhoFonte += delta;
-            if (tamanhoFonte < 10) tamanhoFonte = 10;
-            if (tamanhoFonte > 40) tamanhoFonte = 40;
-            document.getElementById('visor-cifra').style.fontSize = tamanhoFonte + 'px';
-        }
-
-        // --- AUTH ---
-        async function entrar() {
-            const { error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('email').value,
-                password: document.getElementById('senha').value
-            });
-            if (error) alert(error.message);
-        }
-
-        async function cadastrar() {
-            const { error } = await _supabase.auth.signUp({
-                email: document.getElementById('email').value,
-                password: document.getElementById('senha').value
-            });
-            if (error) alert(error.message); else alert("Confirme seu e-mail!");
-        }
-
-        async function sair() { await _supabase.auth.signOut(); }
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                document.getElementById('tela-auth').style.display = 'none';
-                baixarDados();
+            if (modoSelecaoDOC) {
+                container.classList.add('modo-selecao-ativo');
+                btnDoc.innerText = "CONFIRMAR DOWNLOAD";
+                btnDoc.style.background = "#27ae60";
+                alert("Selecione as músicas e clique no botão verde para baixar.");
             } else {
-                document.getElementById('tela-auth').style.display = 'flex';
+                const marcados = document.querySelectorAll('.checkbox-selecao:checked');
+                if (marcados.length > 0) {
+                    gerarDocumento(marcados);
+                }
+                container.classList.remove('modo-selecao-ativo');
+                btnDoc.innerText = "BAIXAR DOC";
+                btnDoc.style.background = "var(--accent)";
+                document.querySelectorAll('.checkbox-selecao').forEach(c => c.checked = false);
             }
-        });
+        }
 
-        // --- DADOS ---
+        function gerarDocumento(marcados) {
+            let conteudoFinal = "";
+
+            marcados.forEach((cb) => {
+                const m = todasMusicas.find(mus => mus.id === cb.value);
+                if (m) {
+                    conteudoFinal += `------------------------------------------\r\n`;
+                    conteudoFinal += `${m.titulo.toUpperCase()}\r\n`;
+                    conteudoFinal += `Categoria: ${m.categoria}\r\n`;
+                    conteudoFinal += `------------------------------------------\r\n\r\n`;
+                    conteudoFinal += `${m.conteudo}\r\n\r\n\r\n`;
+                }
+            });
+
+            // Criar o arquivo e disparar download
+            const blob = new Blob([conteudoFinal], { type: "application/msword" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "meu_repertorio.doc";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- FUNÇÕES DE DADOS E INTERFACE ---
         async function baixarDados() {
             const { data } = await _supabase.from('musicas').select('*').order('titulo', { ascending: true });
             todasMusicas = data || [];
             renderizar(todasMusicas);
         }
 
-        async function salvarCifra() {
-            const payload = {
-                titulo: document.getElementById('adm-titulo').value,
-                categoria: document.getElementById('adm-categoria').value,
-                conteudo: document.getElementById('adm-conteudo').value
-            };
-
-            let res;
-            if (editandoId) {
-                res = await _supabase.from('musicas').update(payload).eq('id', editandoId);
-            } else {
-                res = await _supabase.from('musicas').insert([payload]);
-            }
-
-            if (res.error) alert(res.error.message);
-            else {
-                fecharAdmin();
-                baixarDados();
-                if (editandoId) fecharCifra(); // Fecha a view se foi uma edição
-            }
-        }
-
-        function editarMusicaAtiva() {
-            if (!musicaAtiva) return;
-            editandoId = musicaAtiva.id;
-            document.getElementById('admin-header').innerText = "Editar Cifra";
-            document.getElementById('adm-titulo').value = musicaAtiva.titulo;
-            document.getElementById('adm-categoria').value = musicaAtiva.categoria;
-            document.getElementById('adm-conteudo').value = musicaAtiva.conteudo;
-            abrirAdmin();
-        }
-
-        async function apagarMusica(id, event) {
-            event.stopPropagation();
-            if (confirm("Apagar permanentemente?")) {
-                await _supabase.from('musicas').delete().eq('id', id);
-                baixarDados();
-            }
-        }
-
-        // --- UI ---
         function renderizar(lista) {
             const container = document.getElementById('lista-musicas');
             container.innerHTML = "";
             lista.forEach(m => {
                 const div = document.createElement('div');
                 div.className = 'card-musica';
-                div.innerHTML = `<div class="info-musica"><b>${m.titulo}</b><br><small>${m.categoria}</small></div>
-                                 <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>`;
-                div.querySelector('.info-musica').onclick = () => { musicaAtiva = m; deslocamento = 0; abrirCifra(); };
+                div.innerHTML = `
+                    <input type="checkbox" class="checkbox-selecao" value="${m.id}">
+                    <div class="info-musica"><b>${m.titulo}</b><br><small>${m.categoria}</small></div>
+                    <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>`;
+
+                div.querySelector('.info-musica').onclick = () => {
+                    if (modoSelecaoDOC) {
+                        const c = div.querySelector('.checkbox-selecao');
+                        c.checked = !c.checked;
+                    } else {
+                        musicaAtiva = m; deslocamento = 0; abrirCifra();
+                    }
+                };
                 container.appendChild(div);
             });
         }
@@ -442,7 +422,6 @@
 
         function atualizarCifraVisor() {
             const visor = document.getElementById('visor-cifra');
-            // Regex para capturar os acordes baseada na lógica de semitões
             const regexAcordes = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add|M)?(?:\d+)?(?:\/[A-G][#b]?)?)\b/g;
             visor.innerHTML = musicaAtiva.conteudo.replace(regexAcordes, (ac) => transporAcorde(ac, deslocamento));
             document.getElementById('display-tom').innerText = deslocamento === 0 ? "Original" : `Tom: ${deslocamento > 0 ? '+' : ''}${deslocamento}`;
@@ -461,30 +440,62 @@
             return `<span class="nota-musical">${notasEscala[nIdx]}${match[2]}</span>`;
         }
 
+        async function salvarCifra() {
+            const p = {
+                titulo: document.getElementById('adm-titulo').value,
+                categoria: document.getElementById('adm-categoria').value,
+                conteudo: document.getElementById('adm-conteudo').value
+            };
+            let res = editandoId ? await _supabase.from('musicas').update(p).eq('id', editandoId) : await _supabase.from('musicas').insert([p]);
+            if (res.error) alert(res.error.message); else { fecharAdmin(); baixarDados(); if (editandoId) fecharCifra(); }
+        }
+
+        function editarMusicaAtiva() {
+            if (!musicaAtiva) return;
+            editandoId = musicaAtiva.id;
+            document.getElementById('admin-header').innerText = "Editar Cifra";
+            document.getElementById('adm-titulo').value = musicaAtiva.titulo;
+            document.getElementById('adm-categoria').value = musicaAtiva.categoria;
+            document.getElementById('adm-conteudo').value = musicaAtiva.conteudo;
+            abrirAdmin();
+        }
+
+        async function apagarMusica(id, event) {
+            event.stopPropagation();
+            if (confirm("Apagar cifra?")) { await _supabase.from('musicas').delete().eq('id', id); baixarDados(); }
+        }
+
+        // --- AUXILIARES ---
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
         function fecharCifra() { document.getElementById('area-cifra').style.display = 'none'; }
-
-        function abrirAdmin() {
-            if (!editandoId) {
-                document.getElementById('admin-header').innerText = "Nova Cifra";
-                document.getElementById('adm-titulo').value = "";
-                document.getElementById('adm-conteudo').value = "";
-            }
-            document.getElementById('area-admin').style.display = 'block';
-        }
-
-        function fecharAdmin() {
-            document.getElementById('area-admin').style.display = 'none';
-            editandoId = null;
-        }
-
+        function abrirAdmin() { document.getElementById('area-admin').style.display = 'block'; }
+        function fecharAdmin() { document.getElementById('area-admin').style.display = 'none'; editandoId = null; }
         function ajustarTom(v) { deslocamento += v; atualizarCifraVisor(); }
-        function pesquisar(termo) {
-            renderizar(todasMusicas.filter(m => m.titulo.toLowerCase().includes(termo.toLowerCase())));
+        function alterarFonte(d) { tamanhoFonte += d; document.getElementById('visor-cifra').style.fontSize = tamanhoFonte + 'px'; }
+        function pesquisar(t) { renderizar(todasMusicas.filter(m => m.titulo.toLowerCase().includes(t.toLowerCase()))); }
+        function filtrar(c) { renderizar(c === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === c)); }
+
+        // --- AUTH ---
+        async function entrar() {
+            const { error } = await _supabase.auth.signInWithPassword({
+                email: document.getElementById('email').value, password: document.getElementById('senha').value
+            });
+            if (error) alert(error.message);
         }
-        function filtrar(cat) {
-            const f = cat === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === cat);
-            renderizar(f);
+
+        async function cadastrar() {
+            const { error } = await _supabase.auth.signUp({
+                email: document.getElementById('email').value, password: document.getElementById('senha').value
+            });
+            if (error) alert(error.message); else alert("Confirme o e-mail cadastrado!");
         }
+
+        async function sair() { await _supabase.auth.signOut(); }
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) { document.getElementById('tela-auth').style.display = 'none'; baixarDados(); }
+            else { document.getElementById('tela-auth').style.display = 'flex'; }
+        });
 
         if (localStorage.getItem('tema') === 'dark') document.body.classList.add('dark-mode');
     </script>
