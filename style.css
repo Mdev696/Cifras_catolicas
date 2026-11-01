@@ -970,3 +970,20 @@ input, textarea, select { font-size: 16px; } /* evita zoom automático no iOS */
     .auth-hero::after  { width: 270px; height: 250px; }
     .auth-painel { flex: 1 0 auto; display: block; overflow-y: visible; }
 }
+
+/* Celular deitado: tudo empilhado, topo compacto */
+@media (max-height: 480px) and (orientation: landscape) {
+    #tela-auth { flex-direction: column; overflow-y: auto; }
+    .auth-hero {
+        flex: 0 0 auto;
+        min-height: 130px;
+        justify-content: center;
+        padding: calc(env(safe-area-inset-top) + 14px) 24px 14px;
+    }
+    .auth-hero h1 { font-size: 30px; margin-bottom: 6px; }
+    .cruz { margin-bottom: 6px; }
+    .cruz svg { width: 22px; height: 22px; }
+    .lema { font-size: 10px; }
+    .auth-hero::before, .auth-hero::after { display: none; }
+    .auth-painel { flex: 1 0 auto; padding: 20px 24px; }
+}
