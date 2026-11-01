@@ -1,0 +1,7 @@
+create table musicas (
+  id UUID primary key default gen_random_uuid (), -- ou SERIAL para MySQL
+  titulo TEXT not null,
+  categoria TEXT not null,
+  conteudo TEXT not null,
+  created_at timestamp with time zone default NOW()
+);

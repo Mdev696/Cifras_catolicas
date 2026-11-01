@@ -3,502 +3,183 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#54232f">
     <title>Cifras Católicas Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #e74c3c;
-            --bg: #f8f9fa;
-            --text: #333;
-            --card: #ffffff;
-            --input-bg: #ffffff;
-            --header-text: #ffffff;
-        }
-
-        body.dark-mode {
-            --bg: #121212;
-            --text: #e0e0e0;
-            --card: #1e1e1e;
-            --input-bg: #2d2d2d;
-            --primary: #000000;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        body {
-            font-family: -apple-system, sans-serif;
-            margin: 0;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* AUTH */
-        #tela-auth {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 30px;
-        }
-
-        .input-auth {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-
-        .btn-auth {
-            width: 100%;
-            padding: 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        /* HEADER */
-        header {
-            background: var(--primary);
-            color: var(--header-text);
-            padding: 10px 15px;
-            z-index: 50;
-            flex-shrink: 0;
-        }
-
-        .barra-busca {
-            width: 100%;
-            padding: 12px;
-            border-radius: 20px;
-            border: none;
-            margin-top: 10px;
-            font-size: 14px;
-            outline: none;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-
-        .menu-playlists {
-            display: flex;
-            overflow-x: auto;
-            background: var(--card);
-            padding: 10px;
-            gap: 8px;
-            border-bottom: 1px solid #4443;
-            flex-shrink: 0;
-            scrollbar-width: none;
-        }
-
-        .btn-cat {
-            background: #8882;
-            color: var(--text);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            white-space: nowrap;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        /* LISTA */
-        #lista-musicas {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            padding-bottom: 100px;
-        }
-
-        .card-musica {
-            background: var(--card);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            gap: 10px;
-        }
-
-        .checkbox-selecao {
-            display: none;
-            width: 22px;
-            height: 22px;
-            accent-color: var(--accent);
-        }
-
-        .modo-selecao-ativo .checkbox-selecao {
-            display: block;
-        }
-
-        .info-musica {
-            flex: 1;
-            cursor: pointer;
-        }
-
-        .btn-apagar {
-            color: #888;
-            border: none;
-            background: none;
-            font-size: 24px;
-            padding: 0 10px;
-            cursor: pointer;
-        }
-
-        /* CIFRA VIEW */
-        #area-cifra {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            z-index: 60;
-            flex-direction: column;
-        }
-
-        .barra-topo-view {
-            padding: 15px;
-            background: var(--card);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #4443;
-        }
-
-        pre {
-            flex: 1;
-            padding: 20px;
-            overflow: auto;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            line-height: 1.6;
-            margin: 0;
-            white-space: pre;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .nota-musical {
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        .btn-floating {
-            position: fixed;
-            bottom: 25px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: var(--accent);
-            color: white;
-            border-radius: 50%;
-            border: none;
-            font-size: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 40;
-        }
-
-        footer-cifra {
-            background: var(--primary);
-            padding: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            color: white;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-ctrl {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        /* ADMIN */
-        #area-admin {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            z-index: 70;
-            padding: 20px;
-            overflow-y: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+    <!-- ENTRADA -->
     <div id="tela-auth">
-        <h2 style="text-align:center;">Cifras Católicas</h2>
-        <input type="email" id="email" class="input-auth" placeholder="Seu E-mail">
-        <input type="password" id="senha" class="input-auth" placeholder="Sua Senha">
-        <button class="btn-auth" onclick="entrar()">Entrar</button>
-        <button class="btn-auth" style="background:#8883; color:var(--text)" onclick="cadastrar()">Registar</button>
+        <section class="auth-hero">
+            <svg class="cruz" viewBox="0 0 48 64" width="38" height="52" fill="none" stroke="currentColor"
+                stroke-width="1.5" aria-hidden="true">
+                <path d="M24 2v60M6 20h36" />
+            </svg>
+            <h1>Cifras<br>Católicas</h1>
+            <p class="lema">Música que se faz oração</p>
+        </section>
+
+        <section class="auth-painel">
+            <form class="auth-form" onsubmit="event.preventDefault(); enviarAuth();">
+                <h2 id="auth-titulo">Seu canto tem lugar aqui</h2>
+                <p class="auth-sub" id="auth-sub">Entre para organizar suas cifras e preparar cada celebração com
+                    tranquilidade.</p>
+
+                <label for="email">E-mail</label>
+                <div class="campo">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="5" width="18" height="14" rx="3" />
+                        <path d="m4 7 8 6 8-6" />
+                    </svg>
+                    <input type="email" id="email" placeholder="Seu e-mail" autocomplete="email">
+                </div>
+
+                <label for="senha">Senha</label>
+                <div class="campo">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="5" y="11" width="14" height="9" rx="2.5" />
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                    </svg>
+                    <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password">
+                    <button type="button" class="btn-olho" id="btn-olho" onclick="alternarSenha()"
+                        aria-label="Mostrar ou ocultar senha">
+                        <svg class="olho-fechado" viewBox="0 0 24 24" width="22" height="22" fill="none"
+                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="m4 4 16 16" />
+                        </svg>
+                        <svg class="olho-aberto" viewBox="0 0 24 24" width="22" height="22" fill="none"
+                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </button>
+                </div>
+
+                <button type="submit" class="btn-principal">
+                    <span id="btn-auth-texto">Entrar</span>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                </button>
+
+                <p class="auth-troca">
+                    <span id="auth-troca-texto">Ainda não tem uma conta?</span>
+                    <button type="button" id="auth-troca-btn" onclick="alternarModoAuth()">Registrar</button>
+                </p>
+            </form>
+        </section>
     </div>
 
-    <header>
-        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-            <b>Meu Repertório</b>
-            <div>
-                <button id="btn-doc-mode" onclick="toggleModoSelecao()"
-                    style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px; font-size:12px; margin-right:10px;">BAIXAR
-                    DOC</button>
-                <button onclick="toggleDarkMode()"
-                    style="background:none; border:none; color:white; font-size:20px; margin-right:15px;">🌓</button>
-                <button onclick="sair()"
-                    style="background:none; border:none; color:white; font-size:12px;">Sair</button>
+    <!-- APP -->
+    <header class="app-header">
+        <div class="app-header-in">
+            <div class="app-header-topo">
+                <div class="marca">
+                    <svg viewBox="0 0 48 64" width="14" height="19" fill="none" stroke="currentColor" stroke-width="3"
+                        aria-hidden="true">
+                        <path d="M24 2v60M6 20h36" />
+                    </svg>
+                    <span>Meu Repertório</span>
+                </div>
+                <div class="acoes">
+                    <button id="btn-doc-mode" class="btn-doc" onclick="toggleModoSelecao()">BAIXAR DOC</button>
+                    <button class="btn-icone" onclick="toggleDarkMode()" aria-label="Alternar tema">🌓</button>
+                    <button class="btn-sair" onclick="sair()">Sair</button>
+                </div>
             </div>
+            <input type="text" class="barra-busca" placeholder="🔍 Pesquisar..." oninput="pesquisar(this.value)">
         </div>
-        <input type="text" class="barra-busca" placeholder="🔍 Pesquisar..." oninput="pesquisar(this.value)">
     </header>
 
-    <div class="menu-playlists" id="nav-categorias">
-        <button class="btn-cat" onclick="filtrar('Missa')">Missa</button>
-        <button class="btn-cat" onclick="filtrar('Salmo')">Salmo</button>
-        <button class="btn-cat" onclick="filtrar('Grupo de Oração')">Grupo de Oração</button>
-        <button class="btn-cat" onclick="filtrar('A-Z')">Todas</button>
+    <nav class="menu-playlists" id="nav-categorias">
+        <button class="btn-cat ativo" data-cat="Missa" onclick="filtrar('Missa')">Missa</button>
+        <button class="btn-cat" data-cat="Salmo" onclick="filtrar('Salmo')">Salmo</button>
+        <button class="btn-cat" data-cat="Grupo de Oração" onclick="filtrar('Grupo de Oração')">Grupo de Oração</button>
+        <button class="btn-cat" data-cat="Adoração" onclick="filtrar('Adoração')">Adoração</button>
+        <button class="btn-cat" data-cat="Aleatório" onclick="filtrar('Aleatório')">Aleatório</button>
+    </nav>
+
+    <div class="sub-barra" id="sub-missa">
+        <div class="seg">
+            <button class="seg-btn ativo" data-modo="repertorio" onclick="setModoMissa('repertorio')">Por
+                repertório</button>
+            <button class="seg-btn" data-modo="categoria" onclick="setModoMissa('categoria')">Por categoria</button>
+        </div>
+        <div class="chips-momentos" id="chips-momentos"></div>
     </div>
 
-    <div id="lista-musicas"></div>
+    <main class="conteudo">
+        <div id="lista-musicas"></div>
+    </main>
 
-    <button class="btn-floating" onclick="abrirAdmin()">+</button>
+    <button class="btn-floating" onclick="abrirAdmin()" aria-label="Nova cifra">+</button>
 
+    <!-- VISOR DE CIFRA -->
     <div id="area-cifra">
         <div class="barra-topo-view">
-            <button onclick="fecharCifra()" style="border:none; background:none; font-size:16px; color:var(--text);">←
-                Voltar</button>
+            <button class="btn-texto" onclick="fecharCifra()">← Voltar</button>
             <b id="titulo-view"></b>
-            <button onclick="editarMusicaAtiva()"
-                style="border:none; background:none; font-size:14px; color:var(--accent); font-weight:bold;">EDITAR</button>
+            <button class="btn-texto destaque" onclick="editarMusicaAtiva()">EDITAR</button>
         </div>
-        <pre id="visor-cifra"></pre>
-        <footer-cifra>
-            <div>
+        <div class="cifra-corpo">
+            <pre id="visor-cifra"></pre>
+        </div>
+        <div class="rodape-cifra">
+            <div class="grupo-ctrl">
                 <button class="btn-ctrl" onclick="ajustarTom(-1)">- Tom</button>
-                <span id="display-tom" style="margin: 0 5px; font-size: 12px;">Original</span>
+                <span id="display-tom">Original</span>
                 <button class="btn-ctrl" onclick="ajustarTom(1)">+ Tom</button>
             </div>
-            <div style="border-left: 1px solid #fff5; padding-left: 10px;">
+            <div class="grupo-ctrl">
                 <button class="btn-ctrl" onclick="alterarFonte(-2)">A-</button>
                 <button class="btn-ctrl" onclick="alterarFonte(2)">A+</button>
             </div>
-        </footer-cifra>
+            <div class="grupo-ctrl">
+                <button class="btn-ctrl" id="btn-colunas" onclick="alternarColunas()">▯▯ 2 colunas</button>
+            </div>
+            <div class="grupo-ctrl" id="grupo-auto">
+                <button class="btn-ctrl" onclick="ajustarAutomatico()">⤢ Caber tudo</button>
+            </div>
+        </div>
     </div>
 
+    <!-- NOVA / EDITAR CIFRA -->
     <div id="area-admin">
-        <h2 id="admin-header">Nova Cifra</h2>
-        <input type="text" id="adm-titulo" class="input-auth" placeholder="Título">
-        <select id="adm-categoria" class="input-auth">
-            <option value="Missa">Missa</option>
-            <option value="Salmo">Salmo</option>
-            <option value="Grupo de Oração">Grupo de Oração</option>
-            <option value="Terço">Terço</option>
-        </select>
-        <textarea id="adm-conteudo" class="input-auth" style="height:300px; font-family:monospace;"
-            placeholder="Cole a cifra..."></textarea>
-        <button class="btn-auth" style="background:#27ae60" onclick="salvarCifra()">SALVAR</button>
-        <button class="btn-auth" style="background:none; color:red" onclick="fecharAdmin()">Cancelar</button>
+        <div class="admin-box">
+            <h2 id="admin-header">Nova Cifra</h2>
+            <input type="text" id="adm-titulo" class="input-form" placeholder="Título">
+            <select id="adm-categoria" class="input-form" onchange="atualizarCampoMomento()">
+                <option value="Missa">Missa</option>
+                <option value="Salmo">Salmo</option>
+                <option value="Grupo de Oração">Grupo de Oração</option>
+                <option value="Adoração">Adoração</option>
+                <option value="Aleatório">Aleatório</option>
+                <option value="Terço">Terço</option>
+            </select>
+            <select id="adm-momento" class="input-form"></select>
+            <textarea id="adm-conteudo" class="input-form" placeholder="Cole a cifra..." wrap="off" spellcheck="false"
+                autocapitalize="off" autocorrect="off"></textarea>
+            <button class="btn-principal verde" onclick="salvarCifra()">SALVAR</button>
+            <button class="btn-secundario" onclick="fecharAdmin()">Cancelar</button>
+        </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://sdcelpvagtanvheasvsd.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkY2VscHZhZ3RhbnZoZWFzdnNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MzY5MzcsImV4cCI6MjA5MDExMjkzN30.FJ1joIyiyssd9IS6H9gFKRVRHJzSHnjCK7QRCODZWPQ';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const notasEscala = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        let todasMusicas = [];
-        let musicaAtiva = null;
-        let deslocamento = 0;
-        let tamanhoFonte = 16;
-        let editandoId = null;
-        let modoSelecaoDOC = false;
-
-        // --- MODO SELEÇÃO E GERADOR DE DOCUMENTO ---
-        function toggleModoSelecao() {
-            modoSelecaoDOC = !modoSelecaoDOC;
-            const container = document.getElementById('lista-musicas');
-            const btnDoc = document.getElementById('btn-doc-mode');
-
-            if (modoSelecaoDOC) {
-                container.classList.add('modo-selecao-ativo');
-                btnDoc.innerText = "CONFIRMAR DOWNLOAD";
-                btnDoc.style.background = "#27ae60";
-                alert("Selecione as músicas e clique no botão verde para baixar.");
-            } else {
-                const marcados = document.querySelectorAll('.checkbox-selecao:checked');
-                if (marcados.length > 0) {
-                    gerarDocumento(marcados);
-                }
-                container.classList.remove('modo-selecao-ativo');
-                btnDoc.innerText = "BAIXAR DOC";
-                btnDoc.style.background = "var(--accent)";
-                document.querySelectorAll('.checkbox-selecao').forEach(c => c.checked = false);
-            }
-        }
-
-        function gerarDocumento(marcados) {
-            let conteudoFinal = "";
-
-            marcados.forEach((cb) => {
-                const m = todasMusicas.find(mus => mus.id === cb.value);
-                if (m) {
-                    conteudoFinal += `------------------------------------------\r\n`;
-                    conteudoFinal += `${m.titulo.toUpperCase()}\r\n`;
-                    conteudoFinal += `Categoria: ${m.categoria}\r\n`;
-                    conteudoFinal += `------------------------------------------\r\n\r\n`;
-                    conteudoFinal += `${m.conteudo}\r\n\r\n\r\n`;
-                }
-            });
-
-            // Criar o arquivo e disparar download
-            const blob = new Blob([conteudoFinal], { type: "application/msword" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "meu_repertorio.doc";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // --- FUNÇÕES DE DADOS E INTERFACE ---
-        async function baixarDados() {
-            const { data } = await _supabase.from('musicas').select('*').order('titulo', { ascending: true });
-            todasMusicas = data || [];
-            renderizar(todasMusicas);
-        }
-
-        function renderizar(lista) {
-            const container = document.getElementById('lista-musicas');
-            container.innerHTML = "";
-            lista.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'card-musica';
-                div.innerHTML = `
-                    <input type="checkbox" class="checkbox-selecao" value="${m.id}">
-                    <div class="info-musica"><b>${m.titulo}</b><br><small>${m.categoria}</small></div>
-                    <button class="btn-apagar" onclick="apagarMusica('${m.id}', event)">×</button>`;
-
-                div.querySelector('.info-musica').onclick = () => {
-                    if (modoSelecaoDOC) {
-                        const c = div.querySelector('.checkbox-selecao');
-                        c.checked = !c.checked;
-                    } else {
-                        musicaAtiva = m; deslocamento = 0; abrirCifra();
-                    }
-                };
-                container.appendChild(div);
-            });
-        }
-
-        function abrirCifra() {
-            document.getElementById('area-cifra').style.display = 'flex';
-            document.getElementById('titulo-view').innerText = musicaAtiva.titulo;
-            atualizarCifraVisor();
-        }
-
-        function atualizarCifraVisor() {
-            const visor = document.getElementById('visor-cifra');
-            const regexAcordes = /\b([A-G][#b]?(?:m|maj|dim|aug|sus|add|M)?(?:\d+)?(?:\/[A-G][#b]?)?)\b/g;
-            visor.innerHTML = musicaAtiva.conteudo.replace(regexAcordes, (ac) => transporAcorde(ac, deslocamento));
-            document.getElementById('display-tom').innerText = deslocamento === 0 ? "Original" : `Tom: ${deslocamento > 0 ? '+' : ''}${deslocamento}`;
-        }
-
-        function transporAcorde(ac, st) {
-            const match = ac.match(/^([A-G][#b]?)(.*)/);
-            if (!match) return ac;
-            let nota = match[1];
-            const mapB = { "Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#" };
-            if (mapB[nota]) nota = mapB[nota];
-            let idx = notasEscala.indexOf(nota);
-            if (idx === -1) return ac;
-            let nIdx = (idx + st) % 12;
-            if (nIdx < 0) nIdx += 12;
-            return `<span class="nota-musical">${notasEscala[nIdx]}${match[2]}</span>`;
-        }
-
-        async function salvarCifra() {
-            const p = {
-                titulo: document.getElementById('adm-titulo').value,
-                categoria: document.getElementById('adm-categoria').value,
-                conteudo: document.getElementById('adm-conteudo').value
-            };
-            let res = editandoId ? await _supabase.from('musicas').update(p).eq('id', editandoId) : await _supabase.from('musicas').insert([p]);
-            if (res.error) alert(res.error.message); else { fecharAdmin(); baixarDados(); if (editandoId) fecharCifra(); }
-        }
-
-        function editarMusicaAtiva() {
-            if (!musicaAtiva) return;
-            editandoId = musicaAtiva.id;
-            document.getElementById('admin-header').innerText = "Editar Cifra";
-            document.getElementById('adm-titulo').value = musicaAtiva.titulo;
-            document.getElementById('adm-categoria').value = musicaAtiva.categoria;
-            document.getElementById('adm-conteudo').value = musicaAtiva.conteudo;
-            abrirAdmin();
-        }
-
-        async function apagarMusica(id, event) {
-            event.stopPropagation();
-            if (confirm("Apagar cifra?")) { await _supabase.from('musicas').delete().eq('id', id); baixarDados(); }
-        }
-
-        // --- AUXILIARES ---
-        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
-        function fecharCifra() { document.getElementById('area-cifra').style.display = 'none'; }
-        function abrirAdmin() { document.getElementById('area-admin').style.display = 'block'; }
-        function fecharAdmin() { document.getElementById('area-admin').style.display = 'none'; editandoId = null; }
-        function ajustarTom(v) { deslocamento += v; atualizarCifraVisor(); }
-        function alterarFonte(d) { tamanhoFonte += d; document.getElementById('visor-cifra').style.fontSize = tamanhoFonte + 'px'; }
-        function pesquisar(t) { renderizar(todasMusicas.filter(m => m.titulo.toLowerCase().includes(t.toLowerCase()))); }
-        function filtrar(c) { renderizar(c === 'A-Z' ? todasMusicas : todasMusicas.filter(m => m.categoria === c)); }
-
-        // --- AUTH ---
-        async function entrar() {
-            const { error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('email').value, password: document.getElementById('senha').value
-            });
-            if (error) alert(error.message);
-        }
-
-        async function cadastrar() {
-            const { error } = await _supabase.auth.signUp({
-                email: document.getElementById('email').value, password: document.getElementById('senha').value
-            });
-            if (error) alert(error.message); else alert("Confirme o e-mail cadastrado!");
-        }
-
-        async function sair() { await _supabase.auth.signOut(); }
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session) { document.getElementById('tela-auth').style.display = 'none'; baixarDados(); }
-            else { document.getElementById('tela-auth').style.display = 'flex'; }
-        });
-
-        if (localStorage.getItem('tema') === 'dark') document.body.classList.add('dark-mode');
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
