@@ -862,65 +862,6 @@ pre {
     }
 }
 
-/* Celular deitado (pouca altura): tudo empilhado, topo compacto */
-@media (max-height: 480px) and (orientation: landscape) {
-    #tela-auth {
-        flex-direction: column;
-        overflow-y: auto;
-    }
-
-    .auth-hero {
-        flex: 0 0 auto;
-        min-height: 130px;
-        justify-content: center;
-        padding: calc(env(safe-area-inset-top) + 14px) 24px 14px;
-    }
-
-    .auth-hero h1 {
-        font-size: 30px;
-        margin-bottom: 6px;
-    }
-
-    .cruz {
-        margin-bottom: 6px;
-    }
-
-    .cruz svg,
-    svg.cruz {
-        width: 22px;
-        height: 30px;
-    }
-
-    .lema {
-        font-size: 10px;
-    }
-
-    .auth-hero::before,
-    .auth-hero::after {
-        display: none;
-    }
-
-    .auth-painel {
-        flex: 1 0 auto;
-        padding: 20px 24px;
-    }
-
-    .rodape-cifra {
-        padding-top: 6px;
-        padding-bottom: calc(6px + env(safe-area-inset-bottom));
-        gap: 6px 18px;
-    }
-
-    .barra-topo-view {
-        padding-top: calc(env(safe-area-inset-top) + 6px);
-        padding-bottom: 6px;
-    }
-
-    textarea.input-form {
-        height: 180px;
-    }
-}
-
 /* Tablet em pé e telas maiores (600px ou mais) */
 @media (min-width: 600px) {
     :root {
@@ -1100,6 +1041,121 @@ pre {
 
     pre {
         font-size: 20px;
+    }
+}
+
+/* Entrada: preencher a tela inteira no tablet (continua empilhada) */
+@media (min-width: 600px) and (min-height: 481px) {
+    #tela-auth {
+        min-height: 100dvh;
+    }
+
+    .auth-hero {
+        flex: 1 1 38%;
+        min-height: 280px;
+        justify-content: center;
+    }
+
+    .auth-hero h1 {
+        font-size: 64px;
+    }
+
+    .auth-hero::before {
+        width: 420px;
+        height: 380px;
+    }
+
+    .auth-hero::after {
+        width: 350px;
+        height: 320px;
+    }
+
+    .auth-painel {
+        flex: 1 1 62%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 48px calc(40px + env(safe-area-inset-bottom));
+    }
+
+    .auth-form {
+        max-width: 560px;
+    }
+
+    .auth-form h2 {
+        font-size: 36px;
+    }
+
+    .auth-sub {
+        font-size: 17px;
+    }
+
+    .campo {
+        height: 62px;
+    }
+
+    .btn-principal {
+        height: 62px;
+        font-size: 17px;
+    }
+}
+
+/* Celular deitado (pouca altura): tudo empilhado, topo compacto */
+@media (max-height: 480px) and (orientation: landscape) {
+    #tela-auth {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .auth-hero {
+        flex: 0 0 auto;
+        min-height: 130px;
+        justify-content: center;
+        padding: calc(env(safe-area-inset-top) + 14px) 24px 14px;
+    }
+
+    .auth-hero h1 {
+        font-size: 30px;
+        margin-bottom: 6px;
+    }
+
+    .cruz {
+        margin-bottom: 6px;
+    }
+
+    .cruz svg,
+    svg.cruz {
+        width: 22px;
+        height: 30px;
+    }
+
+    .lema {
+        font-size: 10px;
+    }
+
+    .auth-hero::before,
+    .auth-hero::after {
+        display: none;
+    }
+
+    .auth-painel {
+        flex: 1 0 auto;
+        padding: 20px 24px;
+    }
+
+    .rodape-cifra {
+        padding-top: 6px;
+        padding-bottom: calc(6px + env(safe-area-inset-bottom));
+        gap: 6px 18px;
+    }
+
+    .barra-topo-view {
+        padding-top: calc(env(safe-area-inset-top) + 6px);
+        padding-bottom: 6px;
+    }
+
+    textarea.input-form {
+        height: 180px;
     }
 }
 
