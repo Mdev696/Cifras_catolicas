@@ -1,0 +1,808 @@
+/* ========== TEMA ========== */
+:root {
+    --vinho: #54232f;
+    --vinho-2: #722f43;
+    --dourado: #c9a96e;
+    --hero: #54232f;
+    --bg: #f7f3ec;
+    --card: #fdfcf8;
+    --borda: #e3dbd0;
+    --text: #2a1f22;
+    --text-suave: #7a6f6a;
+    --acorde: #722f43;
+    --verde: #2f7a52;
+    --fonte-titulo: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --fonte-corpo: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --raio: 16px;
+}
+
+body.dark-mode {
+    --hero: #3b1722;
+    --bg: #171012;
+    --card: #231a1d;
+    --borda: #3a2c31;
+    --text: #f3ebe6;
+    --text-suave: #a99a96;
+    --acorde: #e0c48e;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: var(--fonte-corpo);
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* ========== ENTRADA ========== */
+#tela-auth {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    overflow-y: auto;
+}
+
+.auth-hero {
+    position: relative;
+    flex: 0 0 auto;
+    min-height: 270px;
+    background: var(--hero);
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+    padding: calc(env(safe-area-inset-top) + 40px) 24px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* arcos decorativos */
+.auth-hero::before,
+.auth-hero::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    transform: translateX(-50%);
+    border: 1px solid rgba(201, 169, 110, 0.28);
+    border-bottom: none;
+    border-radius: 999px 999px 0 0;
+    pointer-events: none;
+}
+
+.auth-hero::before {
+    width: 250px;
+    height: 230px;
+}
+
+.auth-hero::after {
+    width: 210px;
+    height: 200px;
+}
+
+.auth-hero>* {
+    position: relative;
+    z-index: 1;
+}
+
+.cruz {
+    color: var(--dourado);
+    margin-bottom: 18px;
+}
+
+.auth-hero h1 {
+    font-family: var(--fonte-titulo);
+    font-weight: 400;
+    font-size: 44px;
+    line-height: 1.05;
+    margin: 0 0 14px;
+    color: #fbf4ea;
+}
+
+.lema {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--dourado);
+}
+
+.auth-painel {
+    flex: 1 0 auto;
+    padding: 34px 24px calc(34px + env(safe-area-inset-bottom));
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.auth-form h2 {
+    font-family: var(--fonte-titulo);
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+}
+
+.auth-sub {
+    margin: 0 0 26px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-suave);
+}
+
+.auth-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.campo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 16px;
+    margin-bottom: 20px;
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    color: var(--text-suave);
+}
+
+.campo:focus-within {
+    border-color: var(--vinho-2);
+    box-shadow: 0 0 0 3px rgba(114, 47, 67, 0.14);
+}
+
+.campo input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--text);
+}
+
+.campo input::placeholder {
+    color: var(--text-suave);
+    opacity: 0.8;
+}
+
+.btn-olho {
+    border: 0;
+    background: none;
+    padding: 4px;
+    color: var(--text-suave);
+    display: flex;
+}
+
+.btn-olho .olho-aberto {
+    display: none;
+}
+
+.btn-olho.mostrando .olho-aberto {
+    display: block;
+}
+
+.btn-olho.mostrando .olho-fechado {
+    display: none;
+}
+
+.btn-principal {
+    width: 100%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 6px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--vinho-2);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn-principal:active {
+    transform: scale(0.99);
+}
+
+.btn-principal.verde {
+    background: var(--verde);
+    margin-top: 4px;
+}
+
+.btn-secundario {
+    width: 100%;
+    height: 50px;
+    margin-top: 10px;
+    border: 0;
+    background: none;
+    color: var(--text-suave);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.auth-troca {
+    text-align: center;
+    margin: 26px 0 0;
+    font-size: 15px;
+    color: var(--text-suave);
+}
+
+.auth-troca button {
+    border: 0;
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    font-weight: 600;
+    color: var(--vinho-2);
+}
+
+body.dark-mode .auth-troca button {
+    color: var(--dourado);
+}
+
+/* ========== HEADER DO APP ========== */
+.app-header {
+    flex-shrink: 0;
+    z-index: 50;
+    background: var(--hero);
+    color: #fff;
+    padding: calc(env(safe-area-inset-top) + 12px) 16px 14px;
+}
+
+.app-header-in {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.app-header-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--fonte-titulo);
+    font-size: 22px;
+    white-space: nowrap;
+}
+
+.marca svg {
+    color: var(--dourado);
+}
+
+.acoes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-doc {
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 12px;
+    background: var(--dourado);
+    color: #3b1722;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.btn-doc.confirmando {
+    background: var(--verde);
+    color: #fff;
+}
+
+.btn-icone {
+    border: 0;
+    background: none;
+    color: #fff;
+    font-size: 20px;
+    padding: 2px 4px;
+}
+
+.btn-sair {
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+}
+
+.barra-busca {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px 18px;
+    border: 0;
+    outline: none;
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+}
+
+/* ========== CATEGORIAS ========== */
+.menu-playlists {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 12px max(16px, calc((100% - 760px) / 2 + 16px));
+    background: var(--bg);
+    border-bottom: 1px solid var(--borda);
+    scrollbar-width: none;
+}
+
+.menu-playlists::-webkit-scrollbar {
+    display: none;
+}
+
+.btn-cat {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border: 1px solid var(--borda);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--text);
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-cat.ativo {
+    background: var(--vinho-2);
+    border-color: var(--vinho-2);
+    color: #fff;
+}
+
+/* ========== LISTA ========== */
+.conteudo {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#lista-musicas {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 14px 14px calc(110px + env(safe-area-inset-bottom));
+}
+
+.card-musica {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    box-shadow: 0 1px 3px rgba(60, 20, 30, 0.06);
+}
+
+.checkbox-selecao {
+    display: none;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    accent-color: var(--vinho-2);
+}
+
+.modo-selecao-ativo .checkbox-selecao {
+    display: block;
+}
+
+.info-musica {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.info-musica b {
+    display: block;
+    font-family: var(--fonte-titulo);
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.info-musica small {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-suave);
+}
+
+.btn-apagar {
+    border: 0;
+    background: none;
+    padding: 0 8px;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--text-suave);
+}
+
+.vazio {
+    text-align: center;
+    padding: 40px 10px;
+    color: var(--text-suave);
+}
+
+.btn-floating {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    right: max(20px, calc((100vw - 760px) / 2 + 20px));
+    z-index: 40;
+    width: 60px;
+    height: 60px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--vinho-2);
+    color: #fff;
+    font-size: 30px;
+    line-height: 1;
+    box-shadow: 0 6px 16px rgba(84, 35, 47, 0.35);
+}
+
+/* ========== VISOR DE CIFRA ========== */
+#area-cifra {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    flex-direction: column;
+    background: var(--bg);
+}
+
+.barra-topo-view {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+    background: var(--card);
+    border-bottom: 1px solid var(--borda);
+}
+
+.barra-topo-view b {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-family: var(--fonte-titulo);
+    font-weight: 500;
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-texto {
+    border: 0;
+    background: none;
+    padding: 6px 2px;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.btn-texto.destaque {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--vinho-2);
+}
+
+body.dark-mode .btn-texto.destaque {
+    color: var(--dourado);
+}
+
+.cifra-corpo {
+    flex: 1;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+pre {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    white-space: pre;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.nota-musical {
+    color: var(--acorde);
+    font-weight: bold;
+}
+
+.rodape-cifra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 28px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--hero);
+    color: #fff;
+}
+
+.grupo-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#display-tom {
+    min-width: 62px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.btn-ctrl {
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ========== NOVA / EDITAR ========== */
+#area-admin {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    overflow-y: auto;
+    background: var(--bg);
+    padding: calc(env(safe-area-inset-top) + 20px) 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.admin-box {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.admin-box h2 {
+    font-family: var(--fonte-titulo);
+    font-weight: 400;
+    font-size: 28px;
+    margin: 0 0 18px;
+}
+
+.input-form {
+    display: block;
+    width: 100%;
+    padding: 15px 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    outline: none;
+    background: var(--card);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 16px;
+}
+
+.input-form:focus {
+    border-color: var(--vinho-2);
+    box-shadow: 0 0 0 3px rgba(114, 47, 67, 0.14);
+}
+
+textarea.input-form {
+    height: 300px;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+}
+
+/* ========== TELAS MAIORES ========== */
+@media (min-width: 900px) {
+    #tela-auth {
+        flex-direction: row;
+        overflow: hidden;
+    }
+
+    .auth-hero {
+        flex: 1 1 50%;
+        min-height: 100%;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .auth-hero h1 {
+        font-size: 64px;
+    }
+
+    .auth-hero::before {
+        width: 380px;
+        height: 360px;
+    }
+
+    .auth-hero::after {
+        width: 320px;
+        height: 310px;
+    }
+
+    .auth-painel {
+        flex: 1 1 50%;
+        display: flex;
+        align-items: center;
+        overflow-y: auto;
+    }
+}
+
+
+/* ========== MISSA: REPERTÓRIO / CATEGORIA ========== */
+.sub-barra {
+    display: none;
+    flex-shrink: 0;
+    padding: 10px max(16px, calc((100% - 760px) / 2 + 16px));
+    background: var(--bg);
+    border-bottom: 1px solid var(--borda);
+}
+
+.seg {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+}
+
+.seg-btn {
+    flex: 1;
+    padding: 9px 8px;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    color: var(--text-suave);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.seg-btn.ativo {
+    background: var(--vinho-2);
+    color: #fff;
+}
+
+.chips-momentos {
+    display: none;
+    gap: 8px;
+    margin-top: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.chips-momentos::-webkit-scrollbar {
+    display: none;
+}
+
+.secao-momento {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 2px 10px;
+    font-family: var(--fonte-titulo);
+    font-weight: 500;
+    font-size: 18px;
+}
+
+#lista-musicas>.secao-momento:first-child {
+    margin-top: 6px;
+}
+
+.secao-momento .num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--vinho-2);
+    color: #fff;
+    font-family: var(--fonte-corpo);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.secao-vazia {
+    margin: 0 0 4px;
+    padding-left: 36px;
+    font-size: 13px;
+    color: var(--text-suave);
+}
+
+
+/* ========== CIFRA: preservar o alinhamento colado ========== */
+textarea.input-form {
+    white-space: pre;
+    overflow: auto;
+    tab-size: 4;
+}
+
+pre {
+    tab-size: 4;
+    font-variant-ligatures: none;
+}
+
+
+/* ========== CIFRA EM 2 COLUNAS ========== */
+.btn-ctrl.ativo {
+    background: #fff;
+    color: var(--vinho);
+    border-color: #fff;
+}
+
+#area-cifra.modo-colunas .cifra-corpo {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#area-cifra.modo-colunas pre {
+    flex: 0 0 100%;
+    max-width: none;
+    margin: 0;
+    padding: 16px 20px;
+    column-count: 2;
+    column-gap: 40px;
+    column-fill: auto;
+    column-rule: 1px solid var(--borda);
+}
+
+#area-cifra.modo-colunas .bloco {
+    break-inside: avoid;
+    margin-bottom: 1.6em;
+}
+
+
+/* ========== 2 COLUNAS: botão "Caber tudo" (aparece após aumentar/diminuir a fonte) ========== */
+#grupo-auto {
+    display: none;
+}
+
+#area-cifra.modo-colunas.fonte-manual #grupo-auto {
+    display: flex;
+}
